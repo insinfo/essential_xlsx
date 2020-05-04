@@ -1,1 +1,33 @@
-<h1>example xlsx</h1>
+<div class="limiter">
+    <h1>example xlsx</h1>
+    <div class="container-table100_">
+        <div class="wrap-table100">
+            <div class="table100 ver1 m-b-110">
+                <div class="table100-head">
+                    <table>
+                        <thead>
+                            <tr class="row100 head">
+                                <th class="cell100 column1">name</th>
+                                <th class="cell100 column2">phone</th>
+                                <th class="cell100 column3">age</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="table100-body js-pscroll">
+                    <table>
+                        <tbody>
+                            <tr class="row100 body" *ngFor="let item of data">
+                                <td class="cell100 column1">{{item['name']}}</td>
+                                <td class="cell100 column2">{{item['phone']}}</td>
+                                <td class="cell100 column3">{{item['age']}}</td>
+                            </tr>
+                            
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button type="button" class="btn bg-primary text-white" (click)="toXLSX()">Generate XLSX</button>
+</div>
