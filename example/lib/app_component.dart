@@ -28,6 +28,7 @@ class AppComponent {
     if (data != null) {
       if (data.isNotEmpty) {
         var simplexlsx = SimpleXLSX();
+        simplexlsx.fileName = 'foobar.xlsx';
         simplexlsx.sheetName = 'sheet';
 
         //adiciona os dados
