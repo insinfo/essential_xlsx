@@ -9,10 +9,15 @@ import './models/xl/style_sheet.dart';
 import './models/content_types.dart';
 
 class SimpleXLSX {
+  String _fileName = 'dados.xlsx';
   List<List<String>> data = <List<String>>[];
   String _sheetName = 'Sheet 1';
 
   SimpleXLSX();
+
+  set fileName(fileName) => _fileName = fileName ?? _fileName;
+
+  String get fileName => _fileName;
 
   set sheetName(sheetName) {
     if (sheetName != null) {
@@ -113,7 +118,7 @@ class SimpleXLSX {
     var downloadUrl = Url.createObjectUrlFromBlob(blob);
 
     AnchorElement(href: downloadUrl)
-      ..setAttribute('download', 'dados.xlsx') //xlsx
+      ..setAttribute('download', fileName) //xlsx
       ..click();
   }
 }
