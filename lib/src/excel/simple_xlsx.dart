@@ -118,7 +118,9 @@ class SimpleXLSX {
     var downloadUrl = Url.createObjectUrlFromBlob(blob);
 
     AnchorElement(href: downloadUrl)
-      ..setAttribute('download', fileName) //xlsx
+
+      ..setAttribute('download', _sheetName + ".xlsx") //xlsx
+
       ..click();
   }
 }
