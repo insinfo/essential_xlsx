@@ -16,8 +16,8 @@ class Helpers {
     return Helpers();
   }
 
-  String escape(string) {
-    if (!string is String) string = null ? '' : (string + '');
+  String escape(dynamic string) {
+    if (! (string is String)) string == null ? '' : (string + '');
     return (string && reHasUnescapedHtml.hasMatch(string))
         ? string.replace(reUnescapedHtml, escapeHtmlChar)
         : string;

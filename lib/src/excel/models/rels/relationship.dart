@@ -2,11 +2,11 @@ import 'package:xml/xml.dart' as xml;
 
 class Relationship {
   String tagName = 'Relationship';
-  String id;
-  String type;
-  String target;
+  String id ='';
+  String type ='';
+  String target ='';
 
-  Relationship({this.id, this.type, this.target});
+  Relationship({required this.id,required this.type,required this.target});
 
   String toStringXml() {
     var builder = xml.XmlBuilder();
@@ -14,7 +14,7 @@ class Relationship {
         'xml', 'version="1.0" encoding="UTF-8" standalone="yes"');
     builder.element('Relationship',
         attributes: {'Id': id, 'Type': type, 'Target': target});
-    var relationshipXml = builder.build();
+    var relationshipXml = builder.buildDocument();
     var result = relationshipXml.toXmlString(pretty: true);
     // print(result);
     return result;

@@ -1,5 +1,4 @@
 import 'package:archive/archive.dart';
-import 'dart:html';
 
 //models
 import './models/rels/relationships.dart';
@@ -9,37 +8,16 @@ import './models/xl/style_sheet.dart';
 import './models/content_types.dart';
 
 class SimpleXLSX {
-  String _fileName = 'dados.xlsx';
   List<List<String>> data = <List<String>>[];
-  String _sheetName = 'Sheet 1';
+  String sheetName = 'Sheet 1';
 
-  SimpleXLSX();
-
-  set fileName(fileName) => _fileName = fileName ?? _fileName;
-
-  String get fileName => _fileName;
-
-  set sheetName(sheetName) {
-    if (sheetName != null) {
-      _sheetName = sheetName;
-    }
-  }
-
-  String get sheetName {
-    return _sheetName;
-  }
+  SimpleXLSX({this.sheetName = 'Sheet 1'});
 
   void addRow(List<String> row) {
     data.add(row);
   }
 
-  void setData(data) {
-    if (data != null) {
-      this.data = data;
-    }
-  }
-
-  void build() {
+  List<int> build() {
     var workbookRelationId = 1;
     var styleRelationId = 2;
     var sheetRelationId = 3;
@@ -60,27 +38,26 @@ class SimpleXLSX {
 
     //xl\workbook.xml
     var workbook = Workbook();
-    workbook.addSheet(Sheet(_sheetName, sheetRelationId));
+    workbook.addSheet(Sheet(sheetName, sheetRelationId));
     workbook.toStringXml();
 
     //xl\worksheets\sheet1.xml
     var worksheet = Worksheet();
     //worksheet.addConlSettings(Col());
     //preenche com os dados
-    if (data != null) {
-      var rowIndex = 1;
-      data.forEach((value) {
-        var row = Row(rowIndex);
-        var cellIndex = 0;
-        value.forEach((v) {
-          row.addCellText(v, cellIndex: cellIndex);
-          cellIndex++;
-        });
 
-        worksheet.addRow(row);
-        rowIndex++;
+    var rowIndex = 1;
+    data.forEach((value) {
+      var row = Row(rowIndex);
+      var cellIndex = 0;
+      value.forEach((v) {
+        row.addCellText(v, cellIndex: cellIndex);
+        cellIndex++;
       });
-    }
+
+      worksheet.addRow(row);
+      rowIndex++;
+    });
 
     worksheet.toStringXml();
 
@@ -109,18 +86,17 @@ class SimpleXLSX {
     archive.addFile(
         ArchiveFile('xl/styles.xml', styleSheetBytes.length, styleSheetBytes));
     // ignore: omit_local_variable_types
-    List<int> encodedzipdata = ZipEncoder().encode(archive);
+    final encodedzipdata = ZipEncoder().encode(archive);
+    return encodedzipdata ?? [];
 
     //application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
     //'application/zip'
-    var blob = Blob([encodedzipdata],
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    var downloadUrl = Url.createObjectUrlFromBlob(blob);
+    // var blob = Blob([encodedzipdata],
+    //     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    // var downloadUrl = Url.createObjectUrlFromBlob(blob);
 
-    AnchorElement(href: downloadUrl)
-
-      ..setAttribute('download', _sheetName + ".xlsx") //xlsx
-
-      ..click();
+    // AnchorElement(href: downloadUrl)
+    //   ..setAttribute('download', _sheetName + '.xlsx') //xlsx
+    //   ..click();
   }
 }

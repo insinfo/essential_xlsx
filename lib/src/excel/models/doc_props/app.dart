@@ -12,8 +12,8 @@ class Properties {
   String application = 'Microsoft Excel';
   int docSecurity = 0;
   bool scaleCrop = false;
-  HeadingPairs headingPairs;
-  TitlesOfParts titlesOfParts;
+  late HeadingPairs headingPairs;
+  late TitlesOfParts titlesOfParts;
   String company = '';
   bool linksUpToDate = false;
   bool sharedDoc = false;
@@ -27,13 +27,13 @@ class Properties {
   String toStringXml() {
     headingPairs = HeadingPairs();
     headingPairs.vector = Vector('variant');
-    headingPairs.vector.children
+    headingPairs.vector?.children
         .add(Variant(children: [Lpstr(text: 'Planilhas')]));
-    headingPairs.vector.children.add(Variant(children: [I4(text: '1')]));
+    headingPairs.vector?.children.add(Variant(children: [I4(text: '1')]));
 
     titlesOfParts = TitlesOfParts();
     titlesOfParts.vector = Vector('lpstr');
-    titlesOfParts.vector.children.add(Lpstr(text: 'Planilha1'));
+    titlesOfParts.vector?.children.add(Lpstr(text: 'Planilha1'));
 
     var builder = xml.XmlBuilder();
     builder.processing(
@@ -53,9 +53,9 @@ class Properties {
         builder.text(scaleCrop);
       });
       //HeadingPairs
-      headingPairs?.createXmlElement(builder);
+      headingPairs.createXmlElement(builder);
       //titlesOfParts
-      titlesOfParts?.createXmlElement(builder);
+      titlesOfParts.createXmlElement(builder);
       //Company
       builder.element('Company', nest: () {
         builder.text(company);
@@ -77,7 +77,7 @@ class Properties {
         builder.text(appVersion);
       }, isSelfClosing: false);
     });
-    var relationshipsXml = builder.build();
+    var relationshipsXml = builder.buildFragment();
     var result = relationshipsXml.toXmlString(pretty: true);
     print(result);
     return result;
@@ -90,7 +90,7 @@ class Properties {
 
 class Lpstr implements IXmlSerializable {
   String text;
-  Lpstr({this.text});
+  Lpstr({required this.text});
   @override
   void createXmlElement(xml.XmlBuilder builder) {
     builder.element('vt:lpstr', nest: () {
@@ -101,7 +101,7 @@ class Lpstr implements IXmlSerializable {
 
 class I4 implements IXmlSerializable {
   String text;
-  I4({this.text});
+  I4({required this.text});
   @override
   void createXmlElement(xml.XmlBuilder builder) {
     builder.element('vt:i4', nest: () {
@@ -111,17 +111,13 @@ class I4 implements IXmlSerializable {
 }
 
 class Variant implements IXmlSerializable {
-  List<IXmlSerializable> children;
-  Variant({children}) {
-    if (children != null) {
-      this.children = children;
-    }
-  }
+  List<IXmlSerializable> children = [];
+  Variant({ this.children = const[]});
   @override
   void createXmlElement(xml.XmlBuilder builder) {
     builder.element('vt:variant', nest: () {
-      children?.forEach((child) {
-        child?.createXmlElement(builder);
+      children.forEach((child) {
+        child.createXmlElement(builder);
       });
     });
   }
@@ -129,45 +125,41 @@ class Variant implements IXmlSerializable {
 
 class Vector {
   List<IXmlSerializable> children = [];
-  int size;
+  int size=0;
   String baseType;
 
-  Vector(this.baseType, {children}) {
-    if (children != null) {
-      this.children = children;
-    }
-  }
+  Vector(this.baseType, { this.children = const[]}) ;
 
   void createXmlElement(xml.XmlBuilder builder) {
     builder.element('vt:vector', attributes: {
-      'size': children?.length?.toString(),
+      'size': children.length.toString(),
       'baseType': baseType
     }, nest: () {
-      children?.forEach((child) {
-        child?.createXmlElement(builder);
+      children.forEach((child) {
+        child.createXmlElement(builder);
       });
     });
   }
 }
 
 class HeadingPairs {
-  Vector vector;
+  Vector? vector;
   void createXmlElement(xml.XmlBuilder builder) {
     builder.element('HeadingPairs', nest: () {
       if (vector != null) {
-        vector.createXmlElement(builder);
+        vector!.createXmlElement(builder);
       }
     });
   }
 }
 
 class TitlesOfParts {
-  Vector vector;
+  Vector? vector;
 
   void createXmlElement(xml.XmlBuilder builder) {
     builder.element('TitlesOfParts', nest: () {
       if (vector != null) {
-        vector.createXmlElement(builder);
+        vector!.createXmlElement(builder);
       }
     });
   }

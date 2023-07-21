@@ -2,8 +2,8 @@ import 'package:xml/xml.dart' as xml;
 import 'dart:convert';
 
 class SharedString {
-  int count;
-  int uniqueCount;
+  int count=0;
+  int uniqueCount=0;
   String tagName = 'sst';
   Map<String, String> namespaces = {
     'http://schemas.openxmlformats.org/spreadsheetml/2006/main': '',
@@ -22,7 +22,7 @@ class SharedString {
           'uniqueCount': uniqueCount.toString()
         },
         nest: () {});
-    var sstXml = builder.build();
+    var sstXml = builder.buildDocument();
     var result = sstXml.toXmlString(pretty: true);
     //print(result);
     return result;

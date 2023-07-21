@@ -3,7 +3,7 @@ import 'relationship.dart';
 import 'dart:convert';
 
 class Relationships {
-  List<Relationship> relations;
+  List<Relationship> relations = [];
   int id = 1;
   int sheetindex = 1;
   int themeindex = 1;
@@ -15,17 +15,15 @@ class Relationships {
     'http://schemas.openxmlformats.org/package/2006/relationships': ''
   };
 
-  Relationships() {
-    relations = <Relationship>[];
-  }
+  Relationships();
 
-  void addWorksheet(int relationId, {String sheetName}) {
+  void addWorksheet(int relationId, {String? sheetName}) {
     sheetName = sheetName ?? 'sheet1';
     relations.add(Relationship(
         id: 'rId$relationId',
         type:
             'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
-        target: 'worksheets/${sheetName}.xml'));
+        target: 'worksheets/$sheetName.xml'));
     id++;
     sheetindex++;
   }
@@ -96,11 +94,11 @@ class Relationships {
     builder.processing(
         'xml', 'version="1.0" encoding="UTF-8" standalone="yes"');
     builder.element('Relationships', namespaces: namespaces, nest: () {
-      relations?.forEach((i) {
+      relations.forEach((i) {
         i.createXmlElement(builder);
       });
     });
-    var relationshipsXml = builder.build();
+    var relationshipsXml = builder.buildDocument();
     var result = relationshipsXml.toXmlString(pretty: true);
     //print(result);
     return result;
@@ -120,7 +118,7 @@ class Relationships {
 
   Map<String, dynamic> toMap() {
     var map = <String, dynamic>{};
-    if (relations != null) {
+    if (relations.isNotEmpty) {
       map['Relationships'] = relations.map((r) {
         return r.toMap();
       }).toList();

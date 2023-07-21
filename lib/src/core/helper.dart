@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'dart:html';
-
 /// If value is truthy return value, otherwise return defaultValue.
 /// If defaultValue is a function it's result is returned.
 ///
@@ -16,7 +14,9 @@ import 'dart:html';
 /// var value = or(null, () => 1);
 /// ```
 dynamic or(value, defaultValue) => falsey(value)
-    ? defaultValue is Function ? defaultValue() : defaultValue
+    ? defaultValue is Function
+        ? defaultValue()
+        : defaultValue
     : value;
 
 /// Return true if `value` is "falsey":
@@ -51,7 +51,7 @@ bool falsey(value) =>
 bool truthy(value) => !falsey(value);
 
 class Helper {
-  static String truncate(String value, int truncateAt) {
+  static String? truncate(String? value, int truncateAt) {
     if (value == null) {
       return value;
     }
@@ -73,67 +73,6 @@ class Helper {
       random.add(Random().nextInt(9));
     }
     return random;
-  }
-
-  static String gerarCPF({bool formatted = false}) {
-    var n = randomizer(9);
-    n..add(gerarDigitoVerificador(n))..add(gerarDigitoVerificador(n));
-    return formatted ? formatCPF(n) : n.join();
-  }
-
-  static int gerarDigitoVerificador(List<int> digits) {
-    var baseNumber = 0;
-    for (var i = 0; i < digits.length; i++) {
-      baseNumber += digits[i] * ((digits.length + 1) - i);
-    }
-    var verificationDigit = baseNumber * 10 % 11;
-    return verificationDigit >= 10 ? 0 : verificationDigit;
-  }
-
-  static bool validarCPF(String cpf) {
-    if (cpf == null) {
-      return false;
-    } else if (cpf == '') {
-      return false;
-    } else if (cpf.length < 11) {
-      return false;
-    }
-
-    var sanitizedCPF = cpf
-        .replaceAll(RegExp(r'\.|-'), '')
-        .split('')
-        .map((String digit) => int.parse(digit))
-        .toList();
-
-    if (blacklistedCPF(sanitizedCPF.join())) {
-      return false;
-    }
-
-    var result = sanitizedCPF[9] ==
-            gerarDigitoVerificador(sanitizedCPF.getRange(0, 9).toList()) &&
-        sanitizedCPF[10] ==
-            gerarDigitoVerificador(sanitizedCPF.getRange(0, 10).toList());
-
-    return result;
-  }
-
-  static bool blacklistedCPF(String cpf) {
-    return cpf == '11111111111' ||
-        cpf == '22222222222' ||
-        cpf == '33333333333' ||
-        cpf == '44444444444' ||
-        cpf == '55555555555' ||
-        cpf == '66666666666' ||
-        cpf == '77777777777' ||
-        cpf == '88888888888' ||
-        cpf == '99999999999';
-  }
-
-  static String formatCPF(List<int> n) =>
-      '${n[0]}${n[1]}${n[2]}.${n[3]}${n[4]}${n[5]}.${n[6]}${n[7]}${n[8]}-${n[9]}${n[10]}';
-
-  static String sanitizeCPF(String val) {
-    return val?.replaceAll(RegExp('[^0-9]'), '');
   }
 
   static bool isDate(String str) {
@@ -167,150 +106,6 @@ class Helper {
 
   static bool isNotNullOrEmptyAndContain(Map<String, dynamic> json, key) {
     return json.containsKey(key) && isNotNullOrEmpty(json[key]);
-  }
-
-  static Future<File> resizeImageAsync(File file, int maxWidth, int maxHeight,
-      [EsImgResizeType type = EsImgResizeType.fitWidthHeight,
-      percentage = 0]) async {
-    final fileName = file.name;
-    var reader = FileReader();
-    reader.readAsDataUrl(file);
-    await reader.onLoadEnd.first;
-
-    ImageElement img = document.createElement('img');
-    img.src = reader.result;
-
-    await img.onLoad.first;
-
-    var originalSize = EsSize(img.width, img.height);
-    EsSize newSize;
-
-    switch (type) {
-      case EsImgResizeType.percentage:
-        newSize = EsSize((originalSize.width * percentage / 100).round(),
-            (originalSize.height * percentage / 100).round());
-        break;
-      case EsImgResizeType.fitWidth:
-        newSize = fitIntoDimension(originalSize, EsSize(maxWidth, 0));
-        break;
-      case EsImgResizeType.fitHeight:
-        newSize = fitIntoDimension(originalSize, EsSize(0, maxHeight));
-        break;
-      case EsImgResizeType.fitWidthHeight:
-        var targetSize = EsSize(maxWidth, maxHeight);
-        newSize = fitIntoDimension(originalSize, targetSize);
-        break;
-      default:
-        throw Exception('Unknown type $type');
-    }
-
-    CanvasElement canvas = document.createElement('canvas');
-    canvas.width = newSize.width;
-    canvas.height = newSize.height;
-
-    var ctx = canvas.context2D;
-    ctx.drawImageScaled(img, 0, 0, newSize.width, newSize.height);
-
-    var blob = await ctx.canvas.toBlob('image/jpeg', 0.7);
-
-    var out = File([blob], fileName,
-        {'type': 'image/jpeg', 'lastModified': DateTime.now()});
-    return out;
-  }
-
-  static void resizeImage(File file, int maxWidth, int maxHeight, Function func,
-      [EsImgResizeType type = EsImgResizeType.fitWidthHeight,
-      percentage = 0]) async {
-    final fileName = file.name;
-    var reader = FileReader();
-
-    reader.onLoad.listen((fileEvent) {
-      ImageElement img = document.createElement('img');
-      img.src = reader.result;
-      img.onLoad.listen((data) {
-        var originalSize = EsSize(img.width, img.height);
-        EsSize newSize;
-
-        switch (type) {
-          case EsImgResizeType.percentage:
-            newSize = EsSize((originalSize.width * percentage / 100).round(),
-                (originalSize.height * percentage / 100).round());
-            break;
-          case EsImgResizeType.fitWidth:
-            newSize = fitIntoDimension(originalSize, EsSize(maxWidth, 0));
-            break;
-          case EsImgResizeType.fitHeight:
-            newSize = fitIntoDimension(originalSize, EsSize(0, maxHeight));
-            break;
-          case EsImgResizeType.fitWidthHeight:
-            var targetSize = EsSize(maxWidth, maxHeight);
-            newSize = fitIntoDimension(originalSize, targetSize);
-            break;
-          default:
-            throw Exception('Unknown type $type');
-        }
-
-        /*// calc
-        var widthRatio = maxWidth / imgWidth;
-        var heightRatio = maxHeight / imgHeight;
-        var bestRatio = math.min(widthRatio, heightRatio);
-        // output
-        var newWidth = (imgWidth * bestRatio).round();
-        var newHeight = (imgHeight * bestRatio).round();*/
-
-        CanvasElement canvas = document.createElement('canvas');
-        canvas.width = newSize.width;
-        canvas.height = newSize.height;
-
-        var ctx = canvas.context2D;
-        ctx.drawImageScaled(img, 0, 0, newSize.width, newSize.height);
-        ctx.canvas.toBlob('image/jpeg', 0.7).then((blob) {
-          var out = File([blob], fileName,
-              {'type': 'image/jpeg', 'lastModified': DateTime.now()});
-          func(out);
-        });
-      });
-    });
-    reader.readAsDataUrl(file);
-  }
-
-  static EsSize fitIntoDimension(EsSize originalSize, EsSize targetSize,
-      [bool round = true]) {
-    var width, height;
-    if (targetSize.width > 0 && targetSize.height > 0) {
-      width = targetSize.width;
-      height = width * originalSize.height / originalSize.width;
-      if (height > targetSize.height) {
-        height = targetSize.height;
-        width = height * originalSize.width / originalSize.height;
-      }
-    } else if (targetSize.width > 0) {
-      width = targetSize.width;
-      height = width * originalSize.height / originalSize.width;
-    } else {
-      height = targetSize.height;
-      width = height * originalSize.width / originalSize.height;
-    }
-    if (round == false) {
-      return EsSize(width, height);
-    } else {
-      return EsSize(width.round(), height.round());
-    }
-  }
-
-  static double brazilianMoneyToDouble(input) {
-    if (input == null) {
-      return 0;
-    }
-    var i = input
-        .toString()
-        .substring(2)
-        .replaceAll(',', '@')
-        .replaceAll('.', '#')
-        .replaceAll('@', '.')
-        .replaceAll('#', ',')
-        .replaceAll(',', '');
-    return double.tryParse(i);
   }
 
   static final defaultDiacriticsRemovalap = [
@@ -575,7 +370,7 @@ class Helper {
     if (diacriticsMap.isEmpty) {
       for (var i = 0; i < defaultDiacriticsRemovalap.length; i++) {
         var letters = defaultDiacriticsRemovalap[i]['letters'];
-        for (var j = 0; j < letters.length; j++) {
+        for (var j = 0; j < letters!.length; j++) {
           diacriticsMap[letters[j]] = defaultDiacriticsRemovalap[i]['base'];
         }
       }
@@ -585,20 +380,5 @@ class Helper {
       return diacriticsMap[a.group(0)] =
           diacriticsMap[a.group(0)] ?? a.group(0);
     });
-  }
-}
-
-enum EsImgResizeType { percentage, fitWidth, fitHeight, fitWidthHeight }
-
-class EsSize {
-  int width, height;
-  EsSize(w, h) {
-    width = w;
-    height = h;
-  }
-
-  @override
-  String toString() {
-    return 'width: $width, height: $height';
   }
 }

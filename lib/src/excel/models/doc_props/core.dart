@@ -44,7 +44,7 @@ class CoreProperties {
       //modified
       modified.createXmlElement(builder);
     });
-    var relationshipsXml = builder.build();
+    var relationshipsXml = builder.buildDocument();
     var result = relationshipsXml.toXmlString(pretty: true);
     print(result);
     return result;
